@@ -4,11 +4,13 @@ PROGNAME=$(basename $0)
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 print_usage() {
-	echo "Usage: $0 [build|launch|destroy]"
+	echo "Usage: $0 [build|launch|restart|stop|destroy]"
 	echo ""
-	echo "    launch  : Launch hadoop cluster on docker"
-	echo "    destroy : Remove hadoop cluster on docker"
-	echo "    build   : Build docker images with local hadoop binary"
+	echo "    launch     : create and start hadoop cluster container on docker"
+	echo "    restart  : Restart hadoop cluster container on docker"
+	echo "    stop     : Stop hadoop cluster container on docker"
+	echo "    destroy  : Kill and remove hadoop cluster container on docker, all data lose!!!"
+	echo "    build    : Build docker images with local hadoop binary"
 	echo ""
 	echo "    Options:"
 	echo "        -h,  --help      : Print usage"
@@ -74,6 +76,14 @@ launch_cluster() {
 	done
 }
 
+# stop cluster
+restart_cluster() {
+	docker start hadoop-cluster-master
+	for i in $(seq 1 $DATANODE_NUM); do
+		docker start hadoop-cluster-slave${i}
+	done
+}
+
 # destroy hadoop cluster
 destroy_cluster() {
 	docker kill hadoop-cluster-master
@@ -83,6 +93,14 @@ destroy_cluster() {
 		docker rm hadoop-cluster-slave${i}
 	done
 	docker network rm hadoop-cluster-network
+}
+
+# stop cluster
+stop_cluster() {
+	docker kill hadoop-cluster-master
+	for i in $(seq 1 $DATANODE_NUM); do
+		docker kill hadoop-cluster-slave${i}
+	done
 }
 
 # build images
@@ -101,6 +119,12 @@ launch)
 	;;
 destroy)
 	destroy_cluster
+	;;
+restart)
+	restart_cluster
+	;;
+stop)
+	stop_cluster
 	;;
 build)
 	build_images

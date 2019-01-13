@@ -15,17 +15,17 @@ Download [hadoop-3.1.1.tar.gz](http://mirrors.shu.edu.cn/apache/hadoop/common/ha
 ./hadoop-docker-cluster.sh build
 ```
 
-### Step 3: Cluster launch
+### Step 3: Cluster start
+- Use `launch` to create and start containers
 ```bash
 ./hadoop-docker-cluster.sh launch
 ```
-
-### Step 4: Cluster destory
-```bash
-./hadoop-docker-cluster.sh destory
+- Use `restart` to start exist containers
+```
+./hadoop-docker-cluster.sh restart
 ```
 
-### Step 5: Cluster login 
+### Step 4: Cluster login 
 
 - login into hadoop master
 ```bash
@@ -36,6 +36,17 @@ docker exec -it hadoop-cluster-master bash
 ```bash
 docker exec -it hadoop-cluster-slave1 bash
 ```
+
+### Step 5: Cluster stop
+- Use `destory` to remove the container
+```bash
+./hadoop-docker-cluster.sh destory
+```
+- Use `stop` to kill the container
+```bash
+./hadoop-docker-cluster.sh stop
+```
+
 ## Urls
 - Hadoop info of nodemaster.
 http://172.22.0.2:8088/cluster
