@@ -11,7 +11,7 @@ OpenJdk: 1.8.0_202
 ```bash
 ./hadoop-docker-cluster.sh build
 ```
-> It`s takes a lot of time, depends on your network
+> It takes a lot of time, depends on your network
 
 ### Step 3: Cluster start
 - Use `launch` to create and start containers
