@@ -10,10 +10,10 @@ rm /tmp/*.pid
 service ssh start
 
 # start datanode
-nohup $HADOOP_HOME/bin/hdfs datanode 2>>/var/log/hadoop/datanode.err >>/var/log/hadoop/datanode.out &
+nohup $HADOOP_HOME/bin/hdfs datanode 2>>$HADOOP_LOG_DIR/datanode.err >>$HADOOP_LOG_DIR/datanode.out &
 
 # start nodemanager
-nohup $HADOOP_HOME/bin/yarn nodemanager 2>>/var/log/hadoop/nodemanager.err >>/var/log/hadoop/nodemanager.out &
+nohup $HADOOP_HOME/bin/yarn nodemanager 2>>$HADOOP_LOG_DIR/nodemanager.err >>$HADOOP_LOG_DIR/nodemanager.out &
 
 if [[ $1 == "-d" ]]; then
 	while true; do sleep 1000; done
