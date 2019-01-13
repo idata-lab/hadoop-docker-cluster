@@ -49,6 +49,8 @@ docker exec -it hadoop-cluster-slave1 bash
 ```bash
 ./hadoop-docker-cluster.sh destory
 ```
+> Be careful: all data lose after destory
+
 - Use `stop` to kill the container
 ```bash
 ./hadoop-docker-cluster.sh stop
