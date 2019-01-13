@@ -27,19 +27,11 @@ cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 
 # java
 ENV JAVA_HOME /usr/java
-ENV JAVA_VERSION jdk1.8.0_202
 ENV PATH $PATH:$JAVA_HOME/bin
 
-ADD achives/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz /usr
-RUN ln -s /usr/$JAVA_VERSION $JAVA_HOME
+COPY achives/java $JAVA_HOME
 
 # hadoop
-ENV HADOOP_VERSION=3.1.1
-ADD achives/hadoop-${HADOOP_VERSION}.tar.gz /usr/local
-
-WORKDIR /usr/local
-RUN ln -s /usr/local/hadoop-${HADOOP_VERSION} /usr/local/hadoop
-
 ENV HADOOP_HOME /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
 ENV HADOOP_HDFS_HOME /usr/local/hadoop
@@ -49,6 +41,8 @@ ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
 ENV YARN_CONF_DIR /usr/local/hadoop/etc/hadoop
 ENV HADOOP_LOG_DIR /var/log/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
+
+COPY achives/hadoop /usr/local/hadoop
 
 # hadoop configuration
 # backup first
@@ -77,6 +71,9 @@ ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config && \
 echo "UsePAM no" >> /etc/ssh/sshd_config && \
 echo "Port 2122" >> /etc/ssh/sshd_config
+
+# set work dir
+WORKDIR /usr/local
 
 # Hdfs ports
 EXPOSE 9000 50010 50020 50070 50075 50090

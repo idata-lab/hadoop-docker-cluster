@@ -18,6 +18,37 @@ print_usage() {
 	echo ""
 }
 
+download_resources() {
+	# mkdir first
+	if [ ! -d "$DIR/hadoop-base/achives" ]; then
+		mkdir -p $DIR/hadoop-base/achives
+	fi
+
+	# download hadoop
+	if [ ! -f $DIR/hadoop-base/achives/hadoop ]; then
+		# rm -f $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz
+		# wget -P $DIR/hadoop-base/achives 'http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1/hadoop-3.1.1.tar.gz'
+		# if [ $? != 0 ]; then
+		# 	rm -f $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz
+		# fi
+		tar -xzf $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz -C $DIR/hadoop-base/achives
+		mv $DIR/hadoop-base/achives/hadoop-3.1.1 $DIR/hadoop-base/achives/hadoop
+	fi
+
+	# download openjdk
+	if [ ! -f $DIR/hadoop-base/achives/java ]; then
+		# rm -f jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+		# wget -P $DIR/hadoop-base/achives 'https://download.java.net/java/early_access/jdk8/b03/BCL/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
+
+		# if [ $? != 0 ]; then
+		# 	rm -f jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+		# fi
+
+		tar -xzf $DIR/hadoop-base/achives/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz -C $DIR/hadoop-base/achives
+		mv $DIR/hadoop-base/achives/jdk1.8.0_202 $DIR/hadoop-base/achives/java
+	fi
+}
+
 if [ $# -eq 0 ]; then
 	print_usage
 fi
@@ -105,6 +136,14 @@ stop_cluster() {
 
 # build images
 build_images() {
+	# prepare resources
+	download_resources
+
+	if [ $? != 0 ]; then
+		echo 'build stopped due to download resources failed'
+		exit 1
+	fi
+
 	cd $DIR/hadoop-base
 	docker build -t idata-lab/hadoop-base:latest .
 	cd $DIR/hadoop-master
