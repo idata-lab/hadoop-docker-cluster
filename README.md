@@ -36,6 +36,12 @@ docker exec -it hadoop-cluster-master bash
 ```bash
 docker exec -it hadoop-cluster-slave1 bash
 ```
+## Urls
+- Hadoop info of nodemaster.
+http://172.22.0.2:8088/cluster
+
+- DFS Health of nodemaster.
+http://172.22.0.2:9870
 
 ## License
 MIT
