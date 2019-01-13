@@ -3,6 +3,7 @@
 PROGNAME=$(basename $0)
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# print the usage of this shell
 print_usage() {
 	echo "Usage: $0 [build|launch|restart|stop|destroy]"
 	echo ""
@@ -18,6 +19,25 @@ print_usage() {
 	echo ""
 }
 
+# download a sigal resource
+download_resource() {
+	# eg: /home/hadoop/hadoop-base/achives
+	local work_dir=$1
+	# eg: http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1
+	local resource_url=$2
+	# eg: hadoop-3.1.1.tar.gz
+	local resource_tar_filename=$3
+
+	if [ ! -f $work_dir/$resource_tar_filename ]; then
+		wget -P $work_dir $resource_url/$resource_tar_filename
+		if [ $? != 0 ]; then
+			rm -f $work_dir/$resource_tar_filename
+			exit 1
+		fi
+	fi
+}
+
+# download all resources
 download_resources() {
 	# mkdir first
 	if [ ! -d "$DIR/hadoop-base/achives" ]; then
@@ -25,27 +45,19 @@ download_resources() {
 	fi
 
 	# download hadoop
-	if [ ! -f $DIR/hadoop-base/achives/hadoop ]; then
-		# rm -f $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz
-		# wget -P $DIR/hadoop-base/achives 'http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1/hadoop-3.1.1.tar.gz'
-		# if [ $? != 0 ]; then
-		# 	rm -f $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz
-		# fi
-		tar -xzf $DIR/hadoop-base/achives/hadoop-3.1.1.tar.gz -C $DIR/hadoop-base/achives
-		mv $DIR/hadoop-base/achives/hadoop-3.1.1 $DIR/hadoop-base/achives/hadoop
+	download_resource $DIR/hadoop-base/achives \
+		http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1 \
+		hadoop-3.1.1.tar.gz
+	if [ $? != 0 ]; then
+		exit 1
 	fi
 
 	# download openjdk
-	if [ ! -f $DIR/hadoop-base/achives/java ]; then
-		# rm -f jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-		# wget -P $DIR/hadoop-base/achives 'https://download.java.net/java/early_access/jdk8/b03/BCL/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
-
-		# if [ $? != 0 ]; then
-		# 	rm -f jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-		# fi
-
-		tar -xzf $DIR/hadoop-base/achives/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz -C $DIR/hadoop-base/achives
-		mv $DIR/hadoop-base/achives/jdk1.8.0_202 $DIR/hadoop-base/achives/java
+	download_resource $DIR/hadoop-base/achives \
+		https://download.java.net/java/early_access/jdk8/b03/BCL \
+		jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+	if [ $? != 0 ]; then
+		exit 1
 	fi
 }
 

@@ -7,20 +7,11 @@ Hadoop: 3.1.1
 OpenJdk: 1.8.0_202
 
 ## Usage
-### Step 1: Prepare JDK and hadoop
-Download [hadoop-3.1.1.tar.gz](http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1/hadoop-3.1.1.tar.gz) and [jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz](https://download.java.net/java/early_access/jdk8/b03/BCL/jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz) , then put them into folder `hadoop-base/achives`:
-```
-hadoop-base
-    - achives
-        - hadoop-3.1.1.tar.gz
-        - jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-```
-> Use offline mode here, due to slow network :(
-
-### Step 2: Build images
+### Step 1: Build images
 ```bash
 ./hadoop-docker-cluster.sh build
 ```
+> It`s takes a lot of time, depends on your network
 
 ### Step 3: Cluster start
 - Use `launch` to create and start containers

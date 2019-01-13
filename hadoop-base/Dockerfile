@@ -13,10 +13,7 @@ inetutils-ping \
 telnet \
 net-tools && \
 echo "${TIME_ZONE}" > /etc/timezone && \ 
-ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && \
-rm -rf /tmp/* && \
-apt-get clean && \
-apt-get autoremove
+ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
 # passwordless ssh
 RUN rm -f /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa && \
@@ -25,11 +22,15 @@ ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
 ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa && \
 cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 
+# copy achives
+COPY achives /tmp
+
 # java
 ENV JAVA_HOME /usr/java
 ENV PATH $PATH:$JAVA_HOME/bin
 
-COPY achives/java $JAVA_HOME
+RUN mkdir -p $JAVA_HOME && \
+tar --strip-components 1 -xzf /tmp/jdk-* -C $JAVA_HOME
 
 # hadoop
 ENV HADOOP_HOME /usr/local/hadoop
@@ -42,11 +43,10 @@ ENV YARN_CONF_DIR /usr/local/hadoop/etc/hadoop
 ENV HADOOP_LOG_DIR /var/log/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
 
-COPY achives/hadoop /usr/local/hadoop
-
 # hadoop configuration
 # backup first
-RUN mkdir $HADOOP_LOG_DIR $HADOOP_HOME/input && \
+RUN mkdir -p $HADOOP_HOME/input $HADOOP_LOG_DIR && \
+tar --strip-components 1 -xzf /tmp/hadoop-* -C $HADOOP_HOME && \
 cp $HADOOP_HOME/etc/hadoop/*.xml $HADOOP_HOME/input
 
 ADD core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
@@ -62,15 +62,15 @@ ADD ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
 RUN chown root:root /root/.ssh/config
 
-# workingaround docker.io build error
-RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh && \
-chmod +x /usr/local/hadoop/etc/hadoop/*-env.sh && \
-ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
-
 # fix the 254 error code
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config && \
 echo "UsePAM no" >> /etc/ssh/sshd_config && \
 echo "Port 2122" >> /etc/ssh/sshd_config
+
+# do some clean 
+RUN rm -rf /tmp/*.tar.gz && \
+apt-get clean && \
+apt-get autoremove
 
 # set work dir
 WORKDIR /usr/local
