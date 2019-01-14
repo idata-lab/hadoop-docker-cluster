@@ -1,7 +1,14 @@
 #!/bin/bash
-
 PROGNAME=$(basename $0)
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -f $DIR/scripts/download-utils.sh ]; then
+	. $DIR/scripts/download-utils.sh
+fi
+
+if [ -f $DIR/scripts/docker-utils.sh ]; then
+	. $DIR/scripts/docker-utils.sh
+fi
 
 # print the usage of this shell
 print_usage() {
@@ -19,53 +26,11 @@ print_usage() {
 	echo ""
 }
 
-# download a sigal resource
-download_resource() {
-	# eg: /home/hadoop/hadoop-base/achives
-	local work_dir=$1
-	# eg: http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1
-	local resource_url=$2
-	# eg: hadoop-3.1.1.tar.gz
-	local resource_tar_filename=$3
-
-	if [ ! -f $work_dir/$resource_tar_filename ]; then
-		wget -P $work_dir $resource_url/$resource_tar_filename
-		if [ $? != 0 ]; then
-			rm -f $work_dir/$resource_tar_filename
-			exit 1
-		fi
-	fi
-}
-
-# download all resources
-download_resources() {
-	# mkdir first
-	if [ ! -d "$DIR/hadoop-base/achives" ]; then
-		mkdir -p $DIR/hadoop-base/achives
-	fi
-
-	# download hadoop
-	download_resource $DIR/hadoop-base/achives \
-		http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1 \
-		hadoop-3.1.1.tar.gz
-	if [ $? != 0 ]; then
-		exit 1
-	fi
-
-	# download openjdk
-	download_resource $DIR/hadoop-base/achives \
-		https://download.java.net/java/early_access/jdk8/b03/BCL \
-		jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-	if [ $? != 0 ]; then
-		exit 1
-	fi
-}
-
 if [ $# -eq 0 ]; then
 	print_usage
 fi
 
-DATANODE_NUM=3
+SLAVES_NUM=3
 
 for OPT in "$@"; do
 	case "$OPT" in
@@ -78,7 +43,7 @@ for OPT in "$@"; do
 			echo "$PROGNAME: option requires an argument -- $1" 1>&2
 			exit 1
 		fi
-		DATANODE_NUM="$2"
+		SLAVES_NUM="$2"
 		shift 2
 		;;
 	-*)
@@ -89,96 +54,21 @@ for OPT in "$@"; do
 	esac
 done
 
-# launch hadoop cluster
-launch_cluster() {
-
-	# create network
-	if ! docker network inspect hadoop-cluster-network >/dev/null; then
-		echo "Creating docker network hadoop-cluster-network"
-		docker network create --driver bridge --subnet=172.4.0.0/16 hadoop-cluster-network
-	fi
-
-	# start hadoop master server
-	echo "Launching hadoop master server"
-	docker run -d \
-		-p 9870:9870 -p 8088:8088 -p 19888:19888 -p 8188:8188 \
-		--net hadoop-cluster-network \
-		--name hadoop-cluster-master \
-		--hostname hadoop-cluster-master \
-		idata-lab/hadoop-master:latest
-
-	# start hadoop slave server
-	echo "Launching hadoop slave servers"
-	for i in $(seq 1 $DATANODE_NUM); do
-		docker run -d \
-			-p 990${i}:9864 -p 804${i}:8042 \
-			--name hadoop-cluster-slave${i} \
-			--hostname hadoop-cluster-slave${i} \
-			--net hadoop-cluster-network \
-			idata-lab/hadoop-slave:latest
-	done
-}
-
-# stop cluster
-restart_cluster() {
-	docker start hadoop-cluster-master
-	for i in $(seq 1 $DATANODE_NUM); do
-		docker start hadoop-cluster-slave${i}
-	done
-}
-
-# destroy hadoop cluster
-destroy_cluster() {
-	docker kill hadoop-cluster-master
-	docker rm hadoop-cluster-master
-	for i in $(seq 1 $DATANODE_NUM); do
-		docker kill hadoop-cluster-slave${i}
-		docker rm hadoop-cluster-slave${i}
-	done
-	docker network rm hadoop-cluster-network
-}
-
-# stop cluster
-stop_cluster() {
-	docker kill hadoop-cluster-master
-	for i in $(seq 1 $DATANODE_NUM); do
-		docker kill hadoop-cluster-slave${i}
-	done
-}
-
-# build images
-build_images() {
-	# prepare resources
-	download_resources
-
-	if [ $? != 0 ]; then
-		echo 'build stopped due to download resources failed'
-		exit 1
-	fi
-
-	cd $DIR/hadoop-base
-	docker build -t idata-lab/hadoop-base:latest .
-	cd $DIR/hadoop-master
-	docker build -t idata-lab/hadoop-master:latest .
-	cd $DIR/hadoop-slave
-	docker build -t idata-lab/hadoop-slave:latest .
-}
-
 case $1 in
 launch)
-	launch_cluster
+	launch_cluster $SLAVES_NUM
 	;;
 destroy)
-	destroy_cluster
+	destroy_cluster $SLAVES_NUM
 	;;
 restart)
-	restart_cluster
+	restart_cluster $SLAVES_NUM
 	;;
 stop)
-	stop_cluster
+	stop_cluster $SLAVES_NUM
 	;;
 build)
-	build_images
+	build_all_images
 	;;
 esac
 
