@@ -95,7 +95,7 @@ launch_cluster() {
 	# create network
 	if ! docker network inspect hadoop-cluster-network >/dev/null; then
 		echo "Creating docker network hadoop-cluster-network"
-		docker network create --driver bridge --subnet=172.22.0.0/16 hadoop-cluster-network
+		docker network create --driver bridge --subnet=172.4.0.0/16 hadoop-cluster-network
 	fi
 
 	# start hadoop master server
