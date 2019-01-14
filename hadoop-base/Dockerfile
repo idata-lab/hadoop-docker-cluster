@@ -70,7 +70,8 @@ echo "Port 2122" >> /etc/ssh/sshd_config
 # do some clean 
 RUN rm -rf /tmp/*.tar.gz && \
 apt-get clean && \
-apt-get autoremove
+apt-get autoremove && \
+rm -rf /var/lib/apt/lists/*
 
 # set work dir
 WORKDIR /usr/local
