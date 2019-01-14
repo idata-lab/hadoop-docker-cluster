@@ -21,7 +21,11 @@ RUN rm -f /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa 
     ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
     ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
     ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa && \
-    cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+    cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys && \
+    echo 'Host *' >> /etc/ssh/ssh_config && \
+    echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config && \
+    echo 'UserKnownHostsFile /dev/null' >> /etc/ssh/ssh_config && \
+    echo 'LogLevel quiet' >> /etc/ssh/ssh_config
 
 # copy achives
 COPY achives /tmp
@@ -32,12 +36,6 @@ ENV PATH $PATH:$JAVA_HOME/bin
 
 RUN mkdir -p $JAVA_HOME && \
     tar --strip-components 1 -xzf /tmp/jdk-* -C $JAVA_HOME
-
-# ssh
-RUN echo 'Host *' >> /etc/ssh/ssh_config && \
-    echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config && \
-    echo 'UserKnownHostsFile /dev/null' >> /etc/ssh/ssh_config && \
-    echo 'LogLevel quiet' >> /etc/ssh/ssh_config
 
 # do some clean 
 RUN rm -rf /tmp/*
