@@ -9,7 +9,7 @@ ENV TIME_ZONE Asia/Shanghai
 RUN echo "${TIME_ZONE}" > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
-# install dev tools
+# install tools
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends curl tar sudo rsync lsof tzdata vim \
     openssh-server openssh-client \
@@ -37,5 +37,5 @@ ENV PATH $PATH:$JAVA_HOME/bin
 RUN mkdir -p $JAVA_HOME && \
     tar --strip-components 1 -xzf /tmp/jdk-* -C $JAVA_HOME
 
-# do some clean 
+# do some clean
 RUN rm -rf /tmp/*
