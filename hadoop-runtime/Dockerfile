@@ -26,14 +26,14 @@ RUN rm -f /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa 
     echo 'LogLevel quiet' >> /etc/ssh/ssh_config
 
 # copy jdk
-COPY jdk/jdk-*.tar.gz /tmp
+COPY jdk /tmp/jdk
 
 # install java
 ENV JAVA_HOME /usr/local/java
 ENV PATH $PATH:$JAVA_HOME/bin
 
 RUN mkdir -p $JAVA_HOME && \
-    tar --strip-components 1 -xzf /tmp/jdk-*.tar.gz -C $JAVA_HOME
+    tar --strip-components 1 -xzf /tmp/jdk/jdk-*.tar.gz -C $JAVA_HOME
 
 # clean tmp
 RUN rm -rf /tmp/*
