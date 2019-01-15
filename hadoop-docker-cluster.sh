@@ -30,6 +30,7 @@ if [ $# -eq 0 ]; then
 	print_usage
 fi
 
+# 3 slaves by default
 SLAVES_NUM=3
 
 for OPT in "$@"; do
