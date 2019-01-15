@@ -14,21 +14,15 @@ ENV HADOOP_LOG_DIR /var/log/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
 
 # copy hadoop
-COPY hadoop/hadoop-*.tar.gz /tmp
+COPY hadoop /tmp/hadoop
 
 # hadoop configuration
 RUN mkdir -p $HADOOP_HOME/input $HADOOP_LOG_DIR && \
-tar --strip-components 1 -xzf /tmp/hadoop-*.tar.gz -C $HADOOP_HOME && \
-cp $HADOOP_HOME/etc/hadoop/*.xml $HADOOP_HOME/input
-
-ADD hadoop/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
-ADD hadoop/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
-ADD hadoop/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
-ADD hadoop/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml
-ADD hadoop/log4j.properties $HADOOP_HOME/etc/hadoop/log4j.properties
-
-# clean tmp
-RUN rm -rf /tmp/*
+tar --strip-components 1 -xzf /tmp/hadoop/hadoop-*.tar.gz -C $HADOOP_HOME && \
+cp $HADOOP_HOME/etc/hadoop/*.xml $HADOOP_HOME/input && \
+rm -rf /tmp/hadoop/hadoop-*.tar.gz && \
+mv /tmp/hadoop/* $HADOOP_HOME/etc/hadoop && \
+rm -rf /tmp/hadoop
 
 # format namenode
 RUN $HADOOP_HOME/bin/hdfs namenode -format
