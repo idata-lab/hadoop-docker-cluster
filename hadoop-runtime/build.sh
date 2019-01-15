@@ -7,12 +7,12 @@ if [ -f $DIR/../scripts/download-utils.sh ]; then
 fi
 
 # mkdir first
-if [ ! -d $DIR/achives ]; then
-	mkdir $DIR/achives
+if [ ! -d $DIR/jdk ]; then
+	mkdir $DIR/jdk
 fi
 
 # download openjdk
-download_resource $DIR/achives \
+download_resource $DIR/jdk \
 	https://download.java.net/java/early_access/jdk8/b03/BCL \
 	jdk-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
 

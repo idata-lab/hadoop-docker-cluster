@@ -6,13 +6,8 @@ if [ -f $DIR/../scripts/download-utils.sh ]; then
 	. $DIR/../scripts/download-utils.sh
 fi
 
-# mkdir first
-if [ ! -d $DIR/achives ]; then
-	mkdir $DIR/achives
-fi
-
 # download hadoop
-download_resource $DIR/achives \
+download_resource $DIR/hadoop \
 		http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1 \
 		hadoop-3.1.1.tar.gz
 

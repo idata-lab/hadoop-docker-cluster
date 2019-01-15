@@ -2,8 +2,6 @@ FROM ubuntu:19.04
 
 LABEL Author="bing.fxx@gmail.com"
 
-USER root
-
 # time zone set
 ENV TIME_ZONE Asia/Shanghai
 RUN echo "${TIME_ZONE}" > /etc/timezone && \
@@ -27,15 +25,15 @@ RUN rm -f /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa 
     echo 'UserKnownHostsFile /dev/null' >> /etc/ssh/ssh_config && \
     echo 'LogLevel quiet' >> /etc/ssh/ssh_config
 
-# copy achives
-COPY achives /tmp
+# copy jdk
+COPY jdk/jdk-*.tar.gz /tmp
 
 # install java
 ENV JAVA_HOME /usr/local/java
 ENV PATH $PATH:$JAVA_HOME/bin
 
 RUN mkdir -p $JAVA_HOME && \
-    tar --strip-components 1 -xzf /tmp/jdk-* -C $JAVA_HOME
+    tar --strip-components 1 -xzf /tmp/jdk-*.tar.gz -C $JAVA_HOME
 
-# do some clean
+# clean tmp
 RUN rm -rf /tmp/*

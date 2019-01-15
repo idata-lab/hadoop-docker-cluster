@@ -2,9 +2,6 @@ FROM idata-lab/hadoop-runtime:latest
 
 LABEL Author="bing.fxx@gmail.com"
 
-# copy achives
-COPY achives /tmp
-
 # hadoop
 ENV HADOOP_HOME /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
@@ -16,26 +13,28 @@ ENV YARN_CONF_DIR /usr/local/hadoop/etc/hadoop
 ENV HADOOP_LOG_DIR /var/log/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
 
+# copy hadoop
+COPY hadoop/hadoop-*.tar.gz /tmp
+
 # hadoop configuration
-# backup first
 RUN mkdir -p $HADOOP_HOME/input $HADOOP_LOG_DIR && \
-tar --strip-components 1 -xzf /tmp/hadoop-* -C $HADOOP_HOME && \
+tar --strip-components 1 -xzf /tmp/hadoop-*.tar.gz -C $HADOOP_HOME && \
 cp $HADOOP_HOME/etc/hadoop/*.xml $HADOOP_HOME/input
 
-ADD core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
-ADD hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
-ADD mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
-ADD yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml
-ADD log4j.properties $HADOOP_HOME/etc/hadoop/log4j.properties
+ADD hadoop/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+ADD hadoop/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+ADD hadoop/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
+ADD hadoop/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml
+ADD hadoop/log4j.properties $HADOOP_HOME/etc/hadoop/log4j.properties
 
-# do some clean
-RUN rm -rf /tmp/*.tar.gz
+# clean tmp
+RUN rm -rf /tmp/*
 
 # format namenode
 RUN $HADOOP_HOME/bin/hdfs namenode -format
 
 # set work dir
-WORKDIR /usr/local
+WORKDIR $HADOOP_HOME
 
 # Hdfs ports
 EXPOSE 9000 50010 50020 50070 50075 50090
