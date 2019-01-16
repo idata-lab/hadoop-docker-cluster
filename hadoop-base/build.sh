@@ -8,7 +8,7 @@ fi
 
 # download hadoop
 download_resource $DIR/hadoop \
-		http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1 \
-		hadoop-3.1.1.tar.gz
+	http://mirrors.shu.edu.cn/apache/hadoop/common/hadoop-3.1.1 \
+	hadoop-3.1.1.tar.gz
 
 docker build -t idata-lab/hadoop-base:latest $DIR

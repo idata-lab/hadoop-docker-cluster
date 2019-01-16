@@ -11,7 +11,7 @@ create_network() {
 }
 
 # launch hadoop master
-launch_hadoop_master() {
+launch_hadoop() {
 	echo "Launching hadoop master"
 	docker run -d \
 		-p 9870:9870 -p 8088:8088 -p 19888:19888 -p 8188:8188 \
@@ -19,10 +19,7 @@ launch_hadoop_master() {
 		--name hadoop-cluster-master \
 		--hostname hadoop-cluster-master \
 		idata-lab/hadoop-master:latest
-}
 
-# launch hadoop slaves
-launch_hadoop_slaves() {
 	echo "Launching hadoop slaves"
 	for i in $(seq 1 $1); do
 		docker run -d \
@@ -56,15 +53,13 @@ launch_cluster() {
 	# create network
 	create_network
 
-	# launch hadoop master
-	launch_hadoop_master
-
-	# launch hadoop slaves
-	launch_hadoop_slaves $1
+	# launch hadoop
+	launch_hadoop $1
 }
 
 # restart cluster
 restart_cluster() {
+	# restart hadoop
 	docker start hadoop-cluster-master
 	for i in $(seq 1 $1); do
 		docker start hadoop-cluster-slave${i}
@@ -73,17 +68,21 @@ restart_cluster() {
 
 # destroy hadoop cluster
 destroy_cluster() {
+	# destroy hadoop
 	docker kill hadoop-cluster-master >/dev/null
 	docker rm hadoop-cluster-master
 	for i in $(seq 1 $1); do
 		docker kill hadoop-cluster-slave${i} >/dev/null
 		docker rm hadoop-cluster-slave${i}
 	done
+
+	# remove network
 	docker network rm hadoop-cluster-network
 }
 
 # stop cluster
 stop_cluster() {
+	# stop hadoop
 	docker kill hadoop-cluster-master
 	for i in $(seq 1 $1); do
 		docker kill hadoop-cluster-slave${i}

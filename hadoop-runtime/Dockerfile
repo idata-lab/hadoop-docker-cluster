@@ -8,10 +8,11 @@ RUN echo "${TIME_ZONE}" > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
 # install tools
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends curl tar sudo rsync lsof tzdata vim \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl wget tar sudo rsync lsof tzdata vim \
     openssh-server openssh-client \
     inetutils-ping telnet net-tools && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # passwordless ssh
